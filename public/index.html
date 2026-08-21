@@ -1066,6 +1066,9 @@ input[type=text], input[type=password], input[type=number], select {
     <input type="password" id="loginPassword" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter') attemptLogin()">
     <button class="btn btn-primary" onclick="attemptLogin()" style="padding:12px;">Log In</button>
     <div id="loginError" style="color:var(--bad); font-size:13px; min-height:16px; text-align:center;"></div>
+    <button class="backlink" onclick="configureServerIp()" style="font-size:11.5px; color:var(--text-dim); text-decoration:none;">
+      ⚙️ Server: <b class="currentServerDisplay">Auto (Local)</b> <u>(Change)</u>
+    </button>
   </div>
   <button class="backlink" onclick="backToRole()">← back to role select</button>
 </div>
@@ -1669,9 +1672,41 @@ function defaultState() {
   };
 }
 
+function apiEndpoint(path) {
+  const custom = localStorage.getItem('whoami_custom_server');
+  if (custom && custom.trim()) {
+    let clean = custom.trim().replace(/\/+$/, '');
+    if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+      clean = 'http://' + clean;
+    }
+    return clean + path;
+  }
+  return path;
+}
+
+function updateServerDisplay() {
+  const custom = localStorage.getItem('whoami_custom_server');
+  document.querySelectorAll('.currentServerDisplay').forEach(el => {
+    el.textContent = custom ? custom : 'Auto (Local)';
+  });
+}
+
+function configureServerIp() {
+  const current = localStorage.getItem('whoami_custom_server') || '';
+  const newIp = prompt('Enter the Server Address (e.g. http://192.168.0.107:3000 or leave blank for Auto):', current);
+  if (newIp === null) return;
+  if (newIp.trim()) {
+    localStorage.setItem('whoami_custom_server', newIp.trim());
+  } else {
+    localStorage.removeItem('whoami_custom_server');
+  }
+  updateServerDisplay();
+  refresh();
+}
+
 async function loadState() {
   try {
-    const res = await fetch('/api/state');
+    const res = await fetch(apiEndpoint('/api/state'));
     if (res.ok) {
       const parsed = await res.json();
       if (parsed && Object.keys(parsed).length) {
@@ -1696,7 +1731,7 @@ async function resetEntireEvent() {
 
 async function saveState(s) {
   try {
-    await fetch('/api/state', {
+    await fetch(apiEndpoint('/api/state'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(s)
@@ -1824,7 +1859,7 @@ async function attemptLogin() {
 
   errEl.textContent = 'Verifying...';
   try {
-    const res = await fetch('/api/login', {
+    const res = await fetch(apiEndpoint('/api/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ role: pendingLoginRole, username: u, password: p })
@@ -2271,7 +2306,7 @@ async function pressBuzz() {
   setTimeout(() => { if (btn) btn.style.transform = ''; }, 150);
 
   try {
-    const res = await fetch('/api/buzz', {
+    const res = await fetch(apiEndpoint('/api/buzz'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ teamId: myTeamId, ts: Date.now() })
@@ -2487,7 +2522,7 @@ async function loadOfflineIpAddresses() {
   const container = document.getElementById('offlineIpAddresses');
   if (!container || ipsLoaded) return;
   try {
-    const res = await fetch('/api/ips');
+    const res = await fetch(apiEndpoint('/api/ips'));
     const data = await res.json();
     if (!data.addresses || data.addresses.length === 0) {
       container.innerHTML = `<div style="color:var(--text-dim); font-size:13px;">No external network interface detected yet. Turn on Windows Mobile Hotspot and refresh this page.</div>`;
@@ -2769,6 +2804,7 @@ window.addEventListener('appinstalled', () => {
 
 // ---------- BOOT ----------
 (async function init() {
+  updateServerDisplay();
   const restored = await restoreSession();
   if (!restored) {
     hideAll();
