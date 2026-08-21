@@ -1,9 +1,14 @@
 const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
 const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data', 'state.json');
 
@@ -35,11 +40,28 @@ try {
   console.error('Failed to load initial state:', e);
 }
 if (!gameState.version) gameState.version = 1;
+if (!Array.isArray(gameState.buzzLog)) gameState.buzzLog = [];
+if (!Array.isArray(gameState.lockedOut)) gameState.lockedOut = [];
 
-// Function to save state to disk asynchronously
+// Broadcast state to all connected WebSocket clients instantly (< 1ms)
+function broadcastState(excludeWs = null) {
+  const payload = JSON.stringify({ type: 'STATE', state: gameState });
+  wss.clients.forEach(client => {
+    if (client !== excludeWs && client.readyState === WebSocket.OPEN) {
+      try {
+        client.send(payload);
+      } catch (err) {
+        console.error('WS broadcast error:', err);
+      }
+    }
+  });
+}
+
+// Function to save state to disk asynchronously without blocking event loop
 let saveTimeout = null;
-function persistState() {
+function persistState(broadcast = true) {
   gameState.version = (gameState.version || 0) + 1;
+  if (broadcast) broadcastState();
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
     try {
@@ -47,8 +69,139 @@ function persistState() {
     } catch (e) {
       console.error('Error persisting state:', e);
     }
-  }, 50);
+  }, 40);
 }
+
+// Atomic Multi-Team Buzz Handler (Ultra-Fast & Accurate)
+function handleBuzz(teamId, clientTs) {
+  if (!teamId) return { ok: false, error: 'Missing teamId' };
+
+  // Buzzer must be live (open or buzzed phase allows queued buzzes)
+  if (gameState.phase !== 'open' && gameState.phase !== 'buzzed') {
+    return { ok: false, reason: 'not_open', phase: gameState.phase, buzzedTeamId: gameState.buzzedTeamId };
+  }
+
+  // Check if team is locked out for this question
+  if (gameState.lockedOut && gameState.lockedOut.includes(teamId)) {
+    return { ok: false, reason: 'locked_out' };
+  }
+
+  if (!Array.isArray(gameState.buzzLog)) gameState.buzzLog = [];
+
+  // Check if team already buzzed for this question
+  const existingIdx = gameState.buzzLog.findIndex(e => e.teamId === teamId);
+  if (existingIdx !== -1) {
+    return {
+      ok: true,
+      alreadyLogged: true,
+      rank: existingIdx + 1,
+      buzzedTeamId: gameState.buzzedTeamId,
+      answerTimerEnd: gameState.answerTimerEnd
+    };
+  }
+
+  const serverNow = Date.now();
+  const teamObj = (gameState.teams || []).find(t => t.id === teamId);
+  const teamName = teamObj ? teamObj.name : teamId;
+  const semester = teamObj ? teamObj.semester : 1;
+
+  const isFirst = gameState.buzzLog.length === 0;
+  const firstBuzzTs = isFirst ? serverNow : gameState.buzzLog[0].ts;
+  const deltaMs = isFirst ? 0 : Math.max(1, serverNow - firstBuzzTs);
+  const rank = gameState.buzzLog.length + 1;
+
+  const buzzEntry = {
+    teamId,
+    name: teamName,
+    semester,
+    ts: serverNow,
+    clientTs: clientTs || serverNow,
+    deltaMs,
+    rank
+  };
+
+  gameState.buzzLog.push(buzzEntry);
+
+  // If first team, activate answer timer and sound
+  if (isFirst) {
+    gameState.buzzedTeamId = teamId;
+    gameState.phase = 'buzzed';
+    gameState.answerTimerEnd = serverNow + 5000;
+    gameState.soundEvent = { type: 'buzz', id: 'buzz_' + serverNow };
+  }
+
+  persistState(true);
+
+  return {
+    ok: true,
+    isFirst,
+    rank,
+    deltaMs,
+    buzzedTeamId: gameState.buzzedTeamId,
+    answerTimerEnd: gameState.answerTimerEnd
+  };
+}
+
+// Pass to next team in queue
+function handlePassNext() {
+  if (!gameState.buzzedTeamId) return { ok: false, error: 'No active team' };
+  if (!Array.isArray(gameState.lockedOut)) gameState.lockedOut = [];
+  
+  if (!gameState.lockedOut.includes(gameState.buzzedTeamId)) {
+    gameState.lockedOut.push(gameState.buzzedTeamId);
+  }
+
+  // Find next team in buzzLog not locked out
+  const nextEntry = (gameState.buzzLog || []).find(e => !gameState.lockedOut.includes(e.teamId));
+  const serverNow = Date.now();
+
+  if (nextEntry) {
+    gameState.buzzedTeamId = nextEntry.teamId;
+    gameState.phase = 'buzzed';
+    gameState.answerTimerEnd = serverNow + 5000;
+    gameState.soundEvent = { type: 'buzz', id: 'buzz_pass_' + serverNow };
+  } else {
+    // No more queued teams, set to locked
+    gameState.buzzedTeamId = null;
+    gameState.phase = 'locked';
+  }
+
+  persistState(true);
+  return { ok: true, buzzedTeamId: gameState.buzzedTeamId, phase: gameState.phase };
+}
+
+// WebSocket Connection Management
+wss.on('connection', (ws, req) => {
+  // Send state immediately upon connection
+  ws.send(JSON.stringify({ type: 'STATE', state: gameState }));
+
+  ws.on('message', message => {
+    try {
+      const data = JSON.parse(message);
+      
+      if (data.type === 'BUZZ') {
+        const result = handleBuzz(data.teamId, data.ts);
+        ws.send(JSON.stringify({ type: 'BUZZ_REPLY', result }));
+      } else if (data.type === 'PASS_NEXT') {
+        const result = handlePassNext();
+        ws.send(JSON.stringify({ type: 'PASS_NEXT_REPLY', result }));
+      } else if (data.type === 'PING') {
+        ws.send(JSON.stringify({ type: 'PONG', clientTs: data.clientTs, serverTs: Date.now() }));
+      } else if (data.type === 'SET_STATE') {
+        if (data.state) {
+          gameState = data.state;
+          persistState(true);
+        }
+      }
+    } catch (err) {
+      console.error('WS message parse error:', err);
+    }
+  });
+
+  ws.on('error', err => {
+    console.error('WS client error:', err);
+  });
+});
 
 // ---- Instant Authentication Endpoint ----
 app.post('/api/login', (req, res) => {
@@ -95,16 +248,14 @@ app.post('/api/login', (req, res) => {
 });
 
 // ---- Shared game state endpoints ----
-// GET  /api/state  -> returns in-memory state in < 1ms
 app.get('/api/state', (req, res) => {
   res.json(gameState);
 });
 
-// POST /api/state  -> update state in-memory and schedule disk save
 app.post('/api/state', (req, res) => {
   try {
     gameState = req.body;
-    persistState();
+    persistState(true);
     res.json({ ok: true });
   } catch (e) {
     console.error('Failed to write state:', e);
@@ -112,40 +263,25 @@ app.post('/api/state', (req, res) => {
   }
 });
 
-// POST /api/buzz  -> Atomic high-speed buzzer lock (instant millisecond response)
+// POST /api/buzz -> Atomic high-speed buzzer lock & multi-team queue
 app.post('/api/buzz', (req, res) => {
   try {
     const { teamId, ts } = req.body;
-    if (!teamId) return res.status(400).json({ ok: false, error: 'Missing teamId' });
-
-    // Check if buzzer is live
-    if (gameState.phase !== 'open') {
-      return res.json({ ok: false, reason: 'not_open', phase: gameState.phase, buzzedTeamId: gameState.buzzedTeamId });
-    }
-
-    // Check if team is locked out
-    if (gameState.lockedOut && gameState.lockedOut.includes(teamId)) {
-      return res.json({ ok: false, reason: 'locked_out' });
-    }
-
-    // Check if another team already won the race
-    if (gameState.buzzedTeamId) {
-      return res.json({ ok: false, reason: 'already_buzzed', buzzedTeamId: gameState.buzzedTeamId });
-    }
-
-    // FIRST BUZZ WINS! Atomically lock state in memory
-    const now = Date.now();
-    gameState.buzzedTeamId = teamId;
-    gameState.phase = 'buzzed';
-    gameState.answerTimerEnd = now + 5000;
-    if (!gameState.buzzLog) gameState.buzzLog = [];
-    gameState.buzzLog.push({ teamId, ts: ts || now });
-    gameState.soundEvent = { type: 'buzz', id: 'buzz' + now };
-
-    persistState();
-    return res.json({ ok: true, buzzedTeamId: teamId, answerTimerEnd: gameState.answerTimerEnd });
+    const result = handleBuzz(teamId, ts);
+    return res.json(result);
   } catch (e) {
     console.error('Buzz endpoint error:', e);
+    res.status(500).json({ ok: false });
+  }
+});
+
+// POST /api/pass-next -> Pass to next team in queue
+app.post('/api/pass-next', (req, res) => {
+  try {
+    const result = handlePassNext();
+    return res.json(result);
+  } catch (e) {
+    console.error('Pass-next endpoint error:', e);
     res.status(500).json({ ok: false });
   }
 });
@@ -162,7 +298,7 @@ app.get('/api/ips', (req, res) => {
   res.json({ port: PORT, addresses });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
   const nets = os.networkInterfaces();
   const addresses = [];
   for (const name of Object.keys(nets)) {
@@ -172,14 +308,16 @@ app.listen(PORT, '0.0.0.0', () => {
   }
 
   console.log('');
-  console.log('  ========================================');
-  console.log('  TAIT Presents : WHO AM I? SERVER STARTED');
-  console.log('  ========================================');
+  console.log('  ======================================================');
+  console.log('  TAIT Presents : WHO AM I? HIGH-SPEED SERVER READY ⚡');
+  console.log('  ======================================================');
   console.log('');
-  console.log(`  Local:   http://localhost:${PORT}/`);
-  addresses.forEach(ip => console.log(`  Network: http://${ip}:${PORT}/`));
+  console.log(`  Local:     http://localhost:${PORT}/`);
+  addresses.forEach(ip => console.log(`  Network:   http://${ip}:${PORT}/`));
+  console.log(`  WebSocket: ws://localhost:${PORT}/ (Sub-millisecond Real-Time)`);
   console.log('');
-  console.log('  Open the network URL above on the admin laptop, the TV, and every team phone.');
-  console.log('  All devices must be on the same Wi-Fi / router. No internet required.');
+  console.log('  Open the network URL above on the admin laptop, TV, and all 24 team phones.');
+  console.log('  Multi-team buzzer queue, split-millisecond ranking & instant push active.');
   console.log('');
 });
+

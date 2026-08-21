@@ -474,9 +474,13 @@ input[type=text], input[type=password], input[type=number], select {
   justify-content: center;
 }
 .score-adj button:hover { border-color: var(--accent); }
-.buzzlog { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-dim); max-height: 150px; overflow-y: auto; }
-.buzzlog .entry { display: flex; justify-content: space-between; background: var(--bg-panel-2); padding: 8px 12px; border-radius: 8px; }
-.buzzlog .entry.first { color: var(--good); font-weight: 700; border-left: 3px solid var(--good); }
+.buzzlog { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-dim); max-height: 180px; overflow-y: auto; }
+.buzzlog .entry { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel-2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); }
+.buzzlog .entry.first { color: var(--bad); font-weight: 700; border-left: 4px solid var(--bad); background: var(--bad-bg); }
+.buzzlog .entry.second { color: var(--accent); font-weight: 600; border-left: 4px solid var(--accent); background: var(--accent-light); }
+.buzzlog .entry-actions { display: flex; align-items: center; gap: 6px; }
+.buzzlog .entry-actions button { padding: 3px 8px; font-size: 11px; border-radius: 6px; background: var(--bg-panel); color: var(--text); border: 1px solid var(--line); font-weight: 600; cursor: pointer; }
+.buzzlog .entry-actions button:hover { border-color: var(--accent); }
 .small-note { font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-top: 8px; }
 
 /* ---------- CREDENTIALS TABLE ---------- */
@@ -629,21 +633,174 @@ input[type=text], input[type=password], input[type=number], select {
 .tv-status.locked { color: var(--text-dim); }
 .tv-status.open { color: var(--good); animation: blink 0.9s infinite; }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* TV BUZZ HERO & LIVE QUEUE */
+.tv-buzz-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  animation: flashTeam 0.4s ease;
+  margin-bottom: 12px;
+}
+.tv-buzz-badge-1st {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  padding: 6px 18px;
+  border-radius: 30px;
+  font-family: var(--font-display);
+  font-size: clamp(13px, 2.2vw, 18px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+  animation: pulse-badge 1s infinite;
+}
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
 .tv-buzz-team {
   font-family: var(--font-display);
-  font-size: clamp(38px, 8.5vw, 115px);
+  font-size: clamp(34px, 7.5vw, 100px);
   font-weight: 800;
   color: var(--bad);
   animation: flashTeam 0.5s ease;
   text-align: center;
   margin: 0 auto;
   word-break: break-word;
+  line-height: 1.1;
 }
 @keyframes flashTeam {
   0% { transform: scale(0.8); opacity: 0; }
   60% { transform: scale(1.06); }
   100% { transform: scale(1); opacity: 1; }
 }
+.tv-buzz-timer-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(65px, 11vw, 110px);
+  height: clamp(65px, 11vw, 110px);
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 4px solid var(--bad);
+  font-family: var(--font-display);
+  font-size: clamp(36px, 6.5vw, 68px);
+  font-weight: 800;
+  color: var(--bad);
+  box-shadow: 0 0 30px rgba(220, 38, 38, 0.3);
+  margin-top: 4px;
+  padding: 0 10px;
+}
+
+.tv-buzz-queue-wrap {
+  width: 100%;
+  max-width: 1100px;
+  background: var(--bg-panel);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 18px;
+  box-shadow: var(--shadow-md);
+  margin-top: 4px;
+}
+.tv-bq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.tv-bq-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tv-bq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+}
+.tv-bq-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--bg-panel-2);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+}
+.tv-bq-card.rank-1 {
+  background: var(--bad-bg);
+  border-color: var(--bad);
+  color: var(--bad);
+  font-weight: 700;
+}
+.tv-bq-card.rank-2 {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+.tv-bq-rank {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 14px;
+  margin-right: 6px;
+}
+.tv-bq-name {
+  flex: 1;
+  text-align: left;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tv-bq-delta {
+  font-family: monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-left: 6px;
+}
+.tv-bq-tag {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: 6px;
+}
+.tag-answering { background: var(--bad); color: #fff; }
+.tag-standby { background: var(--accent); color: #fff; }
+.tag-queued { background: var(--bg-panel-3); color: var(--text-dim); }
+
+.tv-open-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 6px 16px;
+  background: var(--good-bg);
+  color: var(--good);
+  border-radius: 20px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  animation: pulse-badge 1.2s infinite;
+}
+
 .tv-timer {
   font-family: var(--font-display);
   font-size: clamp(52px, 12vw, 145px);
@@ -877,19 +1034,21 @@ input[type=text], input[type=password], input[type=number], select {
   height: min(68vw, 36vh, 260px);
   border-radius: 50%;
   font-family: var(--font-display);
-  font-size: clamp(24px, 6.5vw, 36px);
+  font-size: clamp(22px, 6vw, 34px);
   font-weight: 800;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: var(--bg-panel);
   color: var(--text-dim);
   border: 6px solid var(--line);
   box-shadow: var(--shadow-lg);
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
+  touch-action: none;
+  cursor: default;
 }
 .buzz-btn.ready {
   background: radial-gradient(circle at 35% 30%, #ff6b3d, var(--bad));
@@ -899,7 +1058,21 @@ input[type=text], input[type=password], input[type=number], select {
   animation: ring 1.1s infinite;
   cursor: pointer;
 }
-.buzz-btn.ready:active { transform: scale(0.93); }
+.buzz-btn.ready:active { transform: scale(0.92); }
+.buzz-btn.standby {
+  background: radial-gradient(circle at 35% 30%, #fbbf24, #d97706);
+  color: #ffffff;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.6);
+  animation: ring-amber 1.2s infinite;
+  cursor: pointer;
+}
+.buzz-btn.standby:active { transform: scale(0.92); }
+@keyframes ring-amber {
+  0% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.6); }
+  70% { box-shadow: 0 0 0 20px rgba(217, 119, 6, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); }
+}
 @keyframes ring {
   0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); }
   70% { box-shadow: 0 0 0 26px rgba(220, 38, 38, 0); }
@@ -909,6 +1082,18 @@ input[type=text], input[type=password], input[type=number], select {
   background: radial-gradient(circle at 35% 30%, #4be3ab, var(--good));
   color: #062015;
   border-color: var(--good);
+  box-shadow: 0 0 30px rgba(5, 150, 105, 0.5);
+}
+.buzz-btn.queued-2 {
+  background: radial-gradient(circle at 35% 30%, #fef08a, #ca8a04);
+  color: #422006;
+  border-color: #eab308;
+  box-shadow: 0 0 20px rgba(202, 138, 4, 0.4);
+}
+.buzz-btn.queued-rest {
+  background: var(--bg-panel-2);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 .buzz-btn.lost {
   background: var(--bg-panel-2);
@@ -918,7 +1103,7 @@ input[type=text], input[type=password], input[type=number], select {
 .team-status {
   font-size: clamp(13px, 3.5vw, 15px);
   color: var(--text-dim);
-  max-width: 320px;
+  max-width: 340px;
   line-height: 1.45;
   font-weight: 500;
   margin-top: auto;
@@ -1133,6 +1318,7 @@ input[type=text], input[type=password], input[type=number], select {
         <div class="row" style="margin-top:8px;">
           <button class="btn btn-good" id="btnCorrect" onclick="markAnswer(true)" disabled>✓ Correct</button>
           <button class="btn btn-bad" id="btnWrong" onclick="markAnswer(false)" disabled>✕ Wrong</button>
+          <button class="btn btn-primary" id="btnPassNext" onclick="adminPassNext()" style="display:none; font-weight:700;">⏭️ Pass to Next in Queue</button>
           <button class="btn" onclick="revealAnswer()">Reveal Answer</button>
           <button class="btn btn-ghost" onclick="resetQuestion()">Reset Question</button>
         </div>
@@ -1701,7 +1887,81 @@ function configureServerIp() {
     localStorage.removeItem('whoami_custom_server');
   }
   updateServerDisplay();
+  if (ws) { try { ws.close(); } catch(e){} }
+  initWebSocket();
   refresh();
+}
+
+// ---------- ULTRA-FAST WEBSOCKET CLIENT (< 1ms REAL-TIME) ----------
+let ws = null;
+let wsReconnectTimer = null;
+let serverTimeOffset = 0;
+
+function getWsUrl() {
+  const custom = localStorage.getItem('whoami_custom_server');
+  if (custom && custom.trim()) {
+    let clean = custom.trim().replace(/\/+$/, '');
+    if (clean.startsWith('https://')) return clean.replace(/^https:\/\//, 'wss://');
+    if (clean.startsWith('http://')) return clean.replace(/^http:\/\//, 'ws://');
+    return 'ws://' + clean;
+  }
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return proto + '//' + location.host;
+}
+
+function initWebSocket() {
+  if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
+  try {
+    const url = getWsUrl();
+    ws = new WebSocket(url);
+
+    ws.onopen = () => {
+      clearTimeout(wsReconnectTimer);
+      // Synchronize clock with server
+      sendWs({ type: 'PING', clientTs: Date.now() });
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'STATE' && data.state) {
+          state = data.state;
+          renderCurrentState();
+        } else if (data.type === 'PONG') {
+          const roundtrip = Date.now() - data.clientTs;
+          serverTimeOffset = data.serverTs - (data.clientTs + roundtrip / 2);
+        } else if (data.type === 'BUZZ_REPLY' && data.result) {
+          if (data.result.ok && data.result.isFirst) {
+            soundBuzz();
+          }
+        }
+      } catch (e) {
+        console.error('WS message error:', e);
+      }
+    };
+
+    ws.onclose = () => {
+      clearTimeout(wsReconnectTimer);
+      wsReconnectTimer = setTimeout(initWebSocket, 600);
+    };
+
+    ws.onerror = () => {
+      try { ws.close(); } catch(e) {}
+    };
+  } catch (e) {
+    clearTimeout(wsReconnectTimer);
+    wsReconnectTimer = setTimeout(initWebSocket, 1000);
+  }
+}
+
+function sendWs(payload) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    try {
+      ws.send(JSON.stringify(payload));
+      return true;
+    } catch (e) {}
+  }
+  return false;
 }
 
 async function loadState() {
@@ -1715,10 +1975,12 @@ async function loadState() {
         if (!parsed.questions || parsed.questions.length === 0) parsed.questions = parseQuestionLines(DEFAULT_QUESTIONS_RAW);
         if (typeof parsed.qIndex !== 'number' || parsed.qIndex < 0) parsed.qIndex = 0;
         if (!parsed.tvMode) parsed.tvMode = 'quiz';
+        if (!Array.isArray(parsed.buzzLog)) parsed.buzzLog = [];
+        if (!Array.isArray(parsed.lockedOut)) parsed.lockedOut = [];
         return parsed;
       }
     }
-  } catch (e) { /* server unreachable or fresh */ }
+  } catch (e) { /* fallback */ }
   return defaultState();
 }
 
@@ -1726,17 +1988,21 @@ async function resetEntireEvent() {
   if (!confirm('Reset the ENTIRE event? This restores all default 24 teams to 0 and reloads the full question bank from scratch. This cannot be undone.')) return;
   const fresh = defaultState();
   await saveState(fresh);
-  await refresh();
+  renderCurrentState();
 }
 
 async function saveState(s) {
+  state = s;
+  // Instant WebSocket push to server
+  sendWs({ type: 'SET_STATE', state: s });
+  // Simultaneous persistent HTTP post
   try {
     await fetch(apiEndpoint('/api/state'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(s)
     });
-  } catch (e) { console.error('storage save failed', e); }
+  } catch (e) { console.error('Storage save failed:', e); }
 }
 
 // ---------- SOUNDS ----------
@@ -1893,51 +2159,51 @@ async function attemptLogin() {
 
 // ---------- ADMIN ACTIONS ----------
 async function toggleTvLeaderboard() {
-  state = await loadState();
+  state = state || await loadState();
   const isLb = state.tvMode === 'leaderboard';
   state.tvMode = isLb ? 'quiz' : 'leaderboard';
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function resetAllScores() {
   if (!confirm('Reset every team\'s score to 0? This cannot be undone.')) return;
-  state = await loadState();
+  state = state || await loadState();
   state.teams.forEach(t => { t.score = 0; });
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function renameTeam(id) {
-  state = await loadState();
+  state = state || await loadState();
   const t = state.teams.find(x => x.id === id);
   if (!t) return;
   const name = prompt('Rename team:', t.name);
   if (!name || !name.trim()) return;
   t.name = name.trim();
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function adjustScore(id, delta) {
-  state = await loadState();
+  state = state || await loadState();
   const t = state.teams.find(x => x.id === id);
   if (t) t.score += delta;
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function importQuestions() {
   const raw = document.getElementById('questionImport').value;
   const qs = parseQuestionLines(raw);
   if (qs.length === 0) { alert('No valid lines found. Format: Category||Clue1||Clue2||Answer'); return; }
-  state = await loadState();
+  state = state || await loadState();
   state.questions = qs;
   state.qIndex = -1;
   state.playedQuestionIndices = [];
   await saveState(state);
   document.getElementById('importCount').textContent = qs.length + ' questions imported';
-  await refresh();
+  renderCurrentState();
 }
 
 async function onQuestionDropdownChange(val) {
@@ -1948,7 +2214,7 @@ async function onQuestionDropdownChange(val) {
 }
 
 async function loadQuestion(idx) {
-  state = await loadState();
+  state = state || await loadState();
   if (idx < 0 || idx >= state.questions.length) return;
   state.qIndex = idx;
   state.phase = 'idle';
@@ -1960,27 +2226,26 @@ async function loadQuestion(idx) {
   state.lockedOut = [];
   state.buzzLog = [];
   state.soundEvent = null;
-  state.tvMode = 'quiz'; // automatically switch TV to quiz when loading new question
+  state.tvMode = 'quiz';
 
-  // Record that this question has been displayed
   if (!state.playedQuestionIndices) state.playedQuestionIndices = [];
   if (!state.playedQuestionIndices.includes(idx)) {
     state.playedQuestionIndices.push(idx);
   }
 
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function nextQuestion() {
-  state = await loadState();
+  state = state || await loadState();
   const next = state.qIndex + 1;
   if (next >= state.questions.length) { alert('No more questions available.'); return; }
   await loadQuestion(next);
 }
 
 async function nextUnplayedQuestion() {
-  state = await loadState();
+  state = state || await loadState();
   if (!state.playedQuestionIndices) state.playedQuestionIndices = [];
   const nextIdx = state.questions.findIndex((_, i) => !state.playedQuestionIndices.includes(i));
   if (nextIdx === -1) {
@@ -1992,19 +2257,19 @@ async function nextUnplayedQuestion() {
 
 async function resetPlayedHistory() {
   if (!confirm('Reset question display history? All questions will be marked as unplayed.')) return;
-  state = await loadState();
+  state = state || await loadState();
   state.playedQuestionIndices = [];
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function prevQuestion() {
-  state = await loadState();
+  state = state || await loadState();
   await loadQuestion(Math.max(0, state.qIndex - 1));
 }
 
 async function adminShowClue(n) {
-  state = await loadState();
+  state = state || await loadState();
   if (state.qIndex < 0) return;
   state.clueIndex = n;
   state.phase = 'locked';
@@ -2014,31 +2279,32 @@ async function adminShowClue(n) {
   state.answerTimerEnd = null;
   state.tvMode = 'quiz';
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function openBuzzer() {
-  state = await loadState();
+  state = state || await loadState();
   if (state.qIndex < 0) return;
   state.phase = 'open';
   state.buzzerOpenedAt = Date.now();
   state.buzzedTeamId = null;
   state.tvMode = 'quiz';
   state.soundEvent = { type: 'open', id: 'open' + Date.now() };
+  state.buzzLog = []; // clear buzz log for new buzz window
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function lockAllBuzzers() {
-  state = await loadState();
+  state = state || await loadState();
   state.phase = 'locked';
   state.buzzedTeamId = null;
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function markAnswer(isCorrect) {
-  state = await loadState();
+  state = state || await loadState();
   const teamId = state.buzzedTeamId;
   if (!teamId) return;
   const team = state.teams.find(t => t.id === teamId);
@@ -2049,22 +2315,51 @@ async function markAnswer(isCorrect) {
   }
   state.resultType = isCorrect ? 'correct' : 'wrong';
   state.phase = 'result';
-  if (!isCorrect) state.lockedOut.push(teamId);
+  if (!isCorrect) {
+    if (!state.lockedOut.includes(teamId)) state.lockedOut.push(teamId);
+  }
   state.soundEvent = { type: isCorrect ? 'correct' : 'wrong', id: (isCorrect ? 'ok' : 'no') + Date.now() };
   await saveState(state);
-  await refresh();
+  renderCurrentState();
+}
+
+// 1-Click Pass Floor to Next Team in Queue
+async function adminPassNext() {
+  // Send over WebSocket for sub-millisecond response
+  const sent = sendWs({ type: 'PASS_NEXT' });
+  if (!sent) {
+    try {
+      await fetch(apiEndpoint('/api/pass-next'), { method: 'POST' });
+    } catch(e) {}
+  }
+}
+
+// Host pass floor to specific team
+async function adminPassToTeam(teamId) {
+  state = state || await loadState();
+  if (!teamId) return;
+  const now = Date.now();
+  if (state.buzzedTeamId && !state.lockedOut.includes(state.buzzedTeamId)) {
+    state.lockedOut.push(state.buzzedTeamId);
+  }
+  state.buzzedTeamId = teamId;
+  state.phase = 'buzzed';
+  state.answerTimerEnd = now + 5000;
+  state.soundEvent = { type: 'buzz', id: 'buzz_direct_' + now };
+  await saveState(state);
+  renderCurrentState();
 }
 
 async function revealAnswer() {
-  state = await loadState();
+  state = state || await loadState();
   state.phase = 'revealed';
   state.tvMode = 'quiz';
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function resetQuestion() {
-  state = await loadState();
+  state = state || await loadState();
   if (state.qIndex < 0) return;
   await loadQuestion(state.qIndex);
 }
@@ -2107,11 +2402,10 @@ async function submitAddTeamCredential() {
     return;
   }
 
-  state = await loadState();
+  state = state || await loadState();
   if (!state.credentials) state.credentials = defaultCredentials();
   if (!state.credentials.teams) state.credentials.teams = {};
 
-  // Check if username already exists in teams or admin/tv
   const dup = Object.values(state.credentials.teams).some(c => (c.username || '').toLowerCase() === u) ||
               (state.credentials.admin.username || '').toLowerCase() === u ||
               (state.credentials.tv.username || '').toLowerCase() === u;
@@ -2126,7 +2420,7 @@ async function submitAddTeamCredential() {
 
   await saveState(state);
   closeAddCredentialModal();
-  await refresh();
+  renderCurrentState();
 }
 
 function openEditCredentialModal(teamId) {
@@ -2163,11 +2457,10 @@ async function submitEditTeamCredential() {
     return;
   }
 
-  state = await loadState();
+  state = state || await loadState();
   if (!state.credentials) state.credentials = defaultCredentials();
   if (!state.credentials.teams) state.credentials.teams = {};
 
-  // Check duplicate username on other teams
   const dup = Object.entries(state.credentials.teams).some(([id, c]) => id !== teamId && (c.username || '').toLowerCase() === u);
   if (dup) {
     errEl.textContent = `Username "${u}" is already in use by another team.`;
@@ -2184,11 +2477,11 @@ async function submitEditTeamCredential() {
 
   await saveState(state);
   closeEditCredentialModal();
-  await refresh();
+  renderCurrentState();
 }
 
 async function deleteTeamCredential(teamId) {
-  state = await loadState();
+  state = state || await loadState();
   const t = state.teams.find(x => x.id === teamId);
   const teamNameDisplay = t ? t.name : 'this team';
   if (!confirm(`Are you sure you want to delete "${teamNameDisplay}" and its login credentials?`)) return;
@@ -2197,17 +2490,16 @@ async function deleteTeamCredential(teamId) {
   if (state.credentials && state.credentials.teams) {
     delete state.credentials.teams[teamId];
   }
-  // Clear from lockedOut and buzzLog
-  state.lockedOut = state.lockedOut.filter(id => id !== teamId);
-  state.buzzLog = state.buzzLog.filter(e => e.teamId !== teamId);
+  state.lockedOut = (state.lockedOut || []).filter(id => id !== teamId);
+  state.buzzLog = (state.buzzLog || []).filter(e => e.teamId !== teamId);
   if (state.buzzedTeamId === teamId) state.buzzedTeamId = null;
 
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function editAdminCredentials() {
-  state = await loadState();
+  state = state || await loadState();
   const creds = state.credentials || defaultCredentials();
   const u = prompt('New Admin Username:', creds.admin.username || 'admin');
   if (!u || !u.trim()) return;
@@ -2218,11 +2510,11 @@ async function editAdminCredentials() {
   creds.admin.password = p.trim();
   state.credentials = creds;
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 async function editTvCredentials() {
-  state = await loadState();
+  state = state || await loadState();
   const creds = state.credentials || defaultCredentials();
   const u = prompt('New TV Display Username:', creds.tv.username || 'tvdisplay');
   if (!u || !u.trim()) return;
@@ -2233,7 +2525,7 @@ async function editTvCredentials() {
   creds.tv.password = p.trim();
   state.credentials = creds;
   await saveState(state);
-  await refresh();
+  renderCurrentState();
 }
 
 function renderAdminCredentialsList() {
@@ -2246,7 +2538,6 @@ function renderAdminCredentialsList() {
   const teamsCreds = creds.teams || {};
   const query = (document.getElementById('credSearchInput')?.value || '').trim().toLowerCase();
 
-  // Admin and TV display credentials
   const adminDisp = document.getElementById('adminCredDisplay');
   if (adminDisp && creds.admin) {
     adminDisp.textContent = `${creds.admin.username} / ${creds.admin.password}`;
@@ -2291,34 +2582,57 @@ function renderAdminCredentialsList() {
   });
 }
 
-// ---------- TEAM ACTIONS ----------
-async function pressBuzz() {
+// ---------- LIGHTNING-FAST TEAM BUZZER ACTION ----------
+let lastBuzzTouchTs = 0;
+
+function pressBuzz() {
   if (!myTeamId) return;
 
-  // Instant haptic feedback on mobile touch
+  // Debounce double touches within 100ms
+  const now = Date.now();
+  if (now - lastBuzzTouchTs < 100) return;
+  lastBuzzTouchTs = now;
+
+  // Instant mobile haptic vibration
   if (navigator.vibrate) {
-    try { navigator.vibrate(60); } catch (e) {}
+    try { navigator.vibrate([70]); } catch (e) {}
   }
 
-  // Optimistic UI touch response
+  // Optimistic UI response
   const btn = document.getElementById('buzzBtn');
-  if (btn) btn.style.transform = 'scale(0.92)';
-  setTimeout(() => { if (btn) btn.style.transform = ''; }, 150);
+  if (btn) btn.style.transform = 'scale(0.91)';
+  setTimeout(() => { if (btn) btn.style.transform = ''; }, 120);
 
-  try {
-    const res = await fetch(apiEndpoint('/api/buzz'), {
+  // Send over active WebSocket for < 1ms response
+  const sent = sendWs({ type: 'BUZZ', teamId: myTeamId, ts: now });
+
+  if (!sent) {
+    // Fallback over HTTP POST
+    fetch(apiEndpoint('/api/buzz'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ teamId: myTeamId, ts: Date.now() })
-    });
-    const data = await res.json();
-    if (data.ok) {
-      soundBuzz();
-    }
-  } catch (e) {
-    console.error('High-speed buzz request error:', e);
+      body: JSON.stringify({ teamId: myTeamId, ts: now })
+    }).then(res => res.json()).then(data => {
+      if (data.ok && data.isFirst) soundBuzz();
+    }).catch(e => console.error('Buzz fetch error:', e));
   }
-  await refresh();
+}
+
+// Zero-delay touch listeners on mobile
+function bindBuzzerTouch() {
+  const btn = document.getElementById('buzzBtn');
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = 'true';
+
+  btn.addEventListener('pointerdown', (e) => {
+    if (e.cancelable) e.preventDefault();
+    pressBuzz();
+  }, { passive: false });
+
+  btn.addEventListener('touchstart', (e) => {
+    if (e.cancelable) e.preventDefault();
+    pressBuzz();
+  }, { passive: false });
 }
 
 // ---------- USER LEADERBOARD MODAL ----------
@@ -2348,7 +2662,6 @@ function renderUserLeaderboardModal(s) {
 
   const allSorted = [...s.teams].sort((a, b) => b.score - a.score);
   
-  // Highlight current team position in banner
   if (myTeamId) {
     const myRankIdx = allSorted.findIndex(t => t.id === myTeamId);
     const myTeamObj = s.teams.find(t => t.id === myTeamId);
@@ -2478,6 +2791,18 @@ function renderAdmin(s) {
   document.getElementById('btnCorrect').disabled = s.phase !== 'buzzed';
   document.getElementById('btnWrong').disabled = s.phase !== 'buzzed';
 
+  // Pass to next button in queue
+  const passNextBtn = document.getElementById('btnPassNext');
+  if (passNextBtn) {
+    const remainingQueue = (s.buzzLog || []).filter(e => !(s.lockedOut || []).includes(e.teamId) && e.teamId !== s.buzzedTeamId);
+    if (s.phase === 'buzzed' && remainingQueue.length > 0) {
+      passNextBtn.style.display = 'inline-flex';
+      passNextBtn.textContent = `⏭️ Pass to Next (#2 ${teamName(s, remainingQueue[0].teamId)})`;
+    } else {
+      passNextBtn.style.display = 'none';
+    }
+  }
+
   // Scoreboard filter
   const scoreBox = document.getElementById('scoreBox');
   scoreBox.innerHTML = '';
@@ -2501,15 +2826,38 @@ function renderAdmin(s) {
     scoreBox.appendChild(row);
   });
 
-  // Buzz Log
+  // Multi-Team Buzz Log with split millisecond timings and pass floor buttons
   const logBox = document.getElementById('buzzLogBox');
-  if (s.buzzLog.length === 0) {
-    logBox.innerHTML = 'No buzzes yet.';
+  if (!s.buzzLog || s.buzzLog.length === 0) {
+    logBox.innerHTML = '<div style="padding:8px; text-align:center; color:var(--text-dim);">No buzzes yet for this round.</div>';
   } else {
-    const sortedLog = [...s.buzzLog].sort((a, b) => a.ts - b.ts);
-    logBox.innerHTML = sortedLog.map((e, i) =>
-      `<div class="entry ${i === 0 ? 'first' : ''}">${i === 0 ? '🥇 ' : ''}${escapeHtml(teamName(s, e.teamId))}<span>${new Date(e.ts).toLocaleTimeString()}</span></div>`
-    ).join('');
+    const buzzList = [...s.buzzLog].sort((a, b) => a.ts - b.ts);
+    logBox.innerHTML = buzzList.map((e, i) => {
+      const isFirst = e.teamId === s.buzzedTeamId;
+      const isLocked = (s.lockedOut || []).includes(e.teamId);
+      const medal = i === 0 ? '🥇 #1' : (i === 1 ? '🥈 #2' : (i === 2 ? '🥉 #3' : `#${i + 1}`));
+      const deltaText = i === 0 ? '0.00s (1st)' : `+${(e.deltaMs / 1000).toFixed(2)}s`;
+      
+      let badge = '';
+      if (isFirst) badge = '<span style="background:var(--bad); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:6px; margin-left:6px;">ANSWERING</span>';
+      else if (isLocked) badge = '<span style="background:var(--bg-panel-3); color:var(--text-dim); font-size:10px; font-weight:700; padding:2px 6px; border-radius:6px; margin-left:6px;">LOCKED OUT</span>';
+      else if (i === 1) badge = '<span style="background:var(--accent); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:6px; margin-left:6px;">ON DECK</span>';
+
+      return `
+        <div class="entry ${isFirst ? 'first' : (i === 1 ? 'second' : '')}">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span>${medal}</span>
+            <span style="font-weight:700;">${escapeHtml(teamName(s, e.teamId))}</span>
+            <span style="font-size:11px; color:var(--text-dim);">(Sem ${e.semester})</span>
+            ${badge}
+          </div>
+          <div class="entry-actions">
+            <span style="font-family:monospace; font-weight:700; font-size:12px; color:var(--text-dim); margin-right:4px;">${deltaText}</span>
+            ${(!isFirst && !isLocked) ? `<button onclick="adminPassToTeam('${e.teamId}')" title="Pass answering floor to this team">Pass Floor</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   // Render Credentials Management Table
@@ -2555,7 +2903,7 @@ function copyToClipboard(text) {
   }
 }
 
-// ---------- RENDER TV ----------
+// ---------- RENDER TV (ULTRA-CLEAR MULTI-TEAM BUZZ DISPLAY) ----------
 function renderTV(s) {
   const body = document.getElementById('tvBody');
   const strip = document.getElementById('tvScoreStrip');
@@ -2569,7 +2917,6 @@ function renderTV(s) {
     const top3 = sorted.slice(0, 3);
     const rest = sorted.slice(3);
 
-    // Podium layout: Rank 2 (left), Rank 1 (center), Rank 3 (right)
     const p1 = top3[0] || { name: '—', semester: '', score: 0 };
     const p2 = top3[1] || { name: '—', semester: '', score: 0 };
     const p3 = top3[2] || { name: '—', semester: '', score: 0 };
@@ -2642,23 +2989,79 @@ function renderTV(s) {
   } else if (s.phase === 'locked' || s.phase === 'open') {
     const clueText = s.clueIndex === 1 ? q.clue1 : q.clue2;
     const pts = s.clueIndex === 1 ? CLUE1_PTS : CLUE2_PTS;
+    const buzzCount = (s.buzzLog || []).length;
     body.innerHTML = `
       <div class="tv-category">${escapeHtml(q.category)} · Clue ${s.clueIndex}</div>
       <div class="tv-clue">${escapeHtml(clueText)}</div>
       <div class="tv-points">${pts}</div>
       <div class="tv-points-label">points</div>
-      <div class="tv-status ${s.phase === 'open' ? 'open' : 'locked'}">${s.phase === 'open' ? '🔓 Buzzers Open — Buzz Now!' : '🔒 Buzzer Locked'}</div>`;
+      <div class="tv-status ${s.phase === 'open' ? 'open' : 'locked'}">${s.phase === 'open' ? '🔓 Buzzers Open — Buzz Now!' : '🔒 Buzzer Locked'}</div>
+      ${s.phase === 'open' ? `<div class="tv-open-stats">⚡ ${buzzCount} / ${s.teams.length} Teams Buzzed</div>` : ''}
+    `;
   } else if (s.phase === 'buzzed') {
     const remaining = Math.max(0, Math.ceil((s.answerTimerEnd - Date.now()) / 1000));
+    const firstTeam = s.teams.find(t => t.id === s.buzzedTeamId);
+    const buzzQueue = (s.buzzLog || []).slice();
+
     body.innerHTML = `
-      <div class="tv-status open" style="color:var(--bad);">🔔 BUZZED!</div>
-      <div class="tv-buzz-team">${escapeHtml(teamName(s, s.buzzedTeamId))}</div>
-      <div class="tv-timer" id="tvTimer">${remaining}</div>`;
+      <div class="tv-buzz-hero">
+        <div class="tv-buzz-badge-1st">🔔 1ST BUZZ · ANSWERING NOW</div>
+        <div class="tv-buzz-team">${escapeHtml(firstTeam ? firstTeam.name : 'Team')}</div>
+        <div style="font-size:clamp(13px,2vw,16px); color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">
+          Semester ${firstTeam ? firstTeam.semester : 1}
+        </div>
+        <div class="tv-buzz-timer-box" id="tvTimer">${remaining}</div>
+      </div>
+
+      <!-- LIVE MULTI-TEAM BUZZ QUEUE (SHOWS EVERYONE WHO BUZZED!) -->
+      ${buzzQueue.length > 1 ? `
+        <div class="tv-buzz-queue-wrap">
+          <div class="tv-bq-header">
+            <div class="tv-bq-title">⚡ Live Buzzer Order (${buzzQueue.length} Teams Registered)</div>
+            <div style="font-size:11.5px; font-weight:700; color:var(--accent);">Sub-millisecond Precision</div>
+          </div>
+          <div class="tv-bq-grid">
+            ${buzzQueue.map((e, idx) => {
+              const isFirst = e.teamId === s.buzzedTeamId;
+              const isLocked = (s.lockedOut || []).includes(e.teamId);
+              const medal = idx === 0 ? '🥇 #1' : (idx === 1 ? '🥈 #2' : (idx === 2 ? '🥉 #3' : `#${idx + 1}`));
+              const delta = idx === 0 ? '0.00s' : `+${(e.deltaMs / 1000).toFixed(2)}s`;
+              
+              let tag = '';
+              if (isFirst) tag = '<span class="tv-bq-tag tag-answering">Answering</span>';
+              else if (isLocked) tag = '<span class="tv-bq-tag tag-queued">Locked</span>';
+              else if (idx === 1) tag = '<span class="tv-bq-tag tag-standby">On Deck</span>';
+              else tag = '<span class="tv-bq-tag tag-queued">Queued</span>';
+
+              return `
+                <div class="tv-bq-card ${isFirst ? 'rank-1' : (idx === 1 ? 'rank-2' : '')}">
+                  <span class="tv-bq-rank">${medal}</span>
+                  <span class="tv-bq-name">${escapeHtml(teamName(s, e.teamId))}</span>
+                  <span class="tv-bq-delta">${delta}</span>
+                  ${tag}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
+    `;
   } else if (s.phase === 'result') {
     const good = s.resultType === 'correct';
+    const firstTeam = s.teams.find(t => t.id === s.buzzedTeamId);
+    const nextQueueTeam = (s.buzzLog || []).find(e => !(s.lockedOut || []).includes(e.teamId));
+
     body.innerHTML = `
       <div class="tv-result ${good ? 'good' : 'bad'}">${good ? '✓ CORRECT ANSWER!' : '✕ INCORRECT'}</div>
-      <div class="tv-buzz-team" style="font-size:clamp(32px,5.5vw,64px); margin-top:10px;">${escapeHtml(teamName(s, s.buzzedTeamId))}</div>`;
+      <div class="tv-buzz-team" style="font-size:clamp(30px,5vw,60px); margin-top:8px;">${escapeHtml(firstTeam ? firstTeam.name : 'Team')}</div>
+      ${(!good && nextQueueTeam) ? `
+        <div style="margin-top:14px; background:var(--accent-light); border:1px solid var(--accent); padding:8px 18px; border-radius:20px; display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size:14px;">
+          <span>🥈 Next Up in Queue:</span>
+          <b style="color:var(--accent);">${escapeHtml(teamName(s, nextQueueTeam.teamId))}</b>
+          <span style="font-family:monospace; color:var(--text-dim); font-size:12px;">(+${(nextQueueTeam.deltaMs/1000).toFixed(2)}s)</span>
+        </div>
+      ` : ''}
+    `;
   } else if (s.phase === 'revealed') {
     body.innerHTML = `
       <div class="tv-answer-label">The Answer Was:</div>
@@ -2669,37 +3072,58 @@ function renderTV(s) {
   strip.innerHTML = sorted.map(t => `<div class="tv-score-chip">${escapeHtml(t.name)}<b>${t.score}</b></div>`).join('');
 }
 
-// ---------- RENDER TEAM ----------
+// ---------- RENDER TEAM (INSTANT MULTI-STAGE BUZZER) ----------
 function renderTeam(s) {
+  bindBuzzerTouch();
   const t = s.teams.find(x => x.id === myTeamId);
   document.getElementById('teamNameTag').textContent = t ? t.name : 'Unknown team';
   document.getElementById('teamSemTag').textContent = t ? `Semester ${t.semester}` : '';
   document.getElementById('teamScoreTag').textContent = t ? `${t.score} pts` : '';
   const btn = document.getElementById('buzzBtn');
   const status = document.getElementById('teamStatusText');
-  const lockedOutHere = s.lockedOut.includes(myTeamId);
+  const lockedOutHere = (s.lockedOut || []).includes(myTeamId);
 
-  btn.classList.remove('ready', 'won', 'lost');
+  // Check where this team sits in the buzzLog
+  const myBuzzEntry = (s.buzzLog || []).find(e => e.teamId === myTeamId);
+  const isFirstBuzz = s.buzzedTeamId === myTeamId;
+
+  btn.classList.remove('ready', 'won', 'lost', 'standby', 'queued-2', 'queued-rest');
+
   if (s.tvMode === 'leaderboard') {
     btn.textContent = '📊';
     btn.classList.add('lost');
     status.textContent = 'Host is currently displaying the Leaderboard on TV. Tap Leaderboard above to view your standing.';
-  } else if (s.phase === 'open' && !lockedOutHere) {
-    btn.textContent = 'BUZZ';
-    btn.classList.add('ready');
-    status.textContent = 'Buzzer is live — tap to buzz!';
-  } else if (s.phase === 'buzzed' && s.buzzedTeamId === myTeamId) {
-    btn.textContent = 'ANSWER!';
-    btn.classList.add('won');
-    status.textContent = 'You buzzed first! Answer out loud now.';
-  } else if (s.phase === 'buzzed') {
-    btn.textContent = 'LOCKED';
-    btn.classList.add('lost');
-    status.textContent = teamName(s, s.buzzedTeamId) + ' buzzed first. Wait for the host.';
   } else if (lockedOutHere) {
     btn.textContent = 'OUT';
     btn.classList.add('lost');
-    status.textContent = 'Your team is locked out for this question.';
+    status.textContent = '🔒 Your team is locked out for this question.';
+  } else if (isFirstBuzz) {
+    btn.textContent = 'ANSWER!';
+    btn.classList.add('won');
+    status.textContent = '🥇 YOU BUZZED 1ST! (0.00s) Answer out loud now!';
+  } else if (myBuzzEntry) {
+    // Team already buzzed and is in the queue
+    const rank = myBuzzEntry.rank || ((s.buzzLog || []).findIndex(e => e.teamId === myTeamId) + 1);
+    const deltaSec = (myBuzzEntry.deltaMs / 1000).toFixed(2);
+    if (rank === 2) {
+      btn.innerHTML = `<span style="font-size:16px;">🥈 #2</span><span>ON DECK</span>`;
+      btn.classList.add('queued-2');
+      status.textContent = `🥈 You buzzed 2nd (+${deltaSec}s)! Stand by — if Team 1 answers wrong, host can pass to you!`;
+    } else {
+      btn.innerHTML = `<span style="font-size:16px;">#${rank}</span><span>QUEUED</span>`;
+      btn.classList.add('queued-rest');
+      status.textContent = `🥉 You buzzed #${rank} (+${deltaSec}s) in the buzzer queue. Stand by!`;
+    }
+  } else if (s.phase === 'open') {
+    // Buzzer is live & team has not buzzed yet
+    btn.textContent = 'BUZZ';
+    btn.classList.add('ready');
+    status.textContent = '🔓 Buzzer is live — tap to buzz!';
+  } else if (s.phase === 'buzzed') {
+    // Another team buzzed 1st, but round is still open for queue registration!
+    btn.innerHTML = `<span style="font-size:15px;">BUZZ</span><span style="font-size:12px; font-weight:700; opacity:0.9;">(QUEUE)</span>`;
+    btn.classList.add('standby');
+    status.textContent = `🔔 ${teamName(s, s.buzzedTeamId)} buzzed 1st! Tap now to enter standby queue (2nd, 3rd...) in case they are wrong!`;
   } else if (s.phase === 'result') {
     btn.textContent = s.resultType === 'correct' ? 'NICE!' : '—';
     status.textContent = s.resultType === 'correct' ? 'Correct answer scored!' : 'That was incorrect.';
@@ -2723,32 +3147,37 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-let isPolling = false;
-
-async function refresh() {
-  const newState = await loadState();
-  if (!newState || !newState.phase) return; // Guard against network dropouts / empty payload
-  state = newState;
-
+// Master Render Dispatcher (Instant)
+function renderCurrentState() {
+  if (!state) return;
   playSoundForEvent(state.soundEvent);
   if (myRole === 'admin') renderAdmin(state);
   if (myRole === 'tv') renderTV(state);
   if (myRole === 'team') renderTeam(state);
 }
 
-async function pollLoop() {
-  if (!isPolling) {
-    isPolling = true;
-    try {
-      await refresh();
-    } catch (e) {
-      // transient network drop - retain previous valid state
-    } finally {
-      isPolling = false;
+let isRefreshing = false;
+async function refresh() {
+  if (isRefreshing) return;
+  isRefreshing = true;
+  try {
+    const newState = await loadState();
+    if (newState && newState.phase) {
+      state = newState;
+      renderCurrentState();
     }
+  } catch (e) {
+  } finally {
+    isRefreshing = false;
   }
-  setTimeout(pollLoop, 350);
 }
+
+// Low-frequency safety fallback poll (every 3000ms, since WebSocket handles 0ms updates)
+setInterval(() => {
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    refresh();
+  }
+}, 2500);
 
 // Live countdown ticker for TV while buzzed
 setInterval(() => {
@@ -2762,10 +3191,7 @@ setInterval(() => {
       }
     }
   }
-}, 200);
-
-// Start sequential low-latency polling loop
-pollLoop();
+}, 150);
 
 // ---------- PWA & SERVICE WORKER ----------
 let deferredPrompt = null;
@@ -2805,6 +3231,7 @@ window.addEventListener('appinstalled', () => {
 // ---------- BOOT ----------
 (async function init() {
   updateServerDisplay();
+  initWebSocket();
   const restored = await restoreSession();
   if (!restored) {
     hideAll();
